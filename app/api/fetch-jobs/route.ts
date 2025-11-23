@@ -253,14 +253,14 @@ export async function POST(request: NextRequest) {
       matches: topMatches.map(m => {
         const job = m.job;
         return {
-          jobId: job.jobId || job.id || `job-${Math.random()}`,
+          jobId: job.jobId || `job-${Math.random()}`,
           title: job.title || "Job Title",
           company: job.company || "Company",
           location: job.location || "Location not specified",
           remote: job.remote || false,
           salaryMin: job.salaryMin,
           salaryMax: job.salaryMax,
-          applyUrl: job.applyUrl || job.link || "#",
+          applyUrl: job.applyUrl || "#",
           matchScore: m.matchScore || 0,
           reasons: m.reasons || [],
         };
