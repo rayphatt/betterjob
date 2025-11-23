@@ -116,9 +116,9 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
         
         // Add to existing line or create new line
         if (lineIndex >= 0) {
-          lines[lineIndex].push({ str: item.str, x, y, width });
+          lines[lineIndex].push({ str, x, y, width });
         } else {
-          lines.push([{ str: item.str, x, y, width }]);
+          lines.push([{ str, x, y, width }]);
         }
       });
       

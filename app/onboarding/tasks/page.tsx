@@ -102,7 +102,7 @@ export default function TasksPage() {
       }
 
       const result = await response.json();
-      const generatedTasks = result.tasks || [];
+      const generatedTasks: string[] = result.tasks || [];
       
       if (generatedTasks.length > 0) {
         if (preserveSelected) {
@@ -110,8 +110,8 @@ export default function TasksPage() {
           // Use functional update to access current tasks state
           setTasks(prev => {
             // Filter out tasks that are already in the list (case-insensitive)
-            const existingTasksSet = new Set(prev.map(t => t.toLowerCase()));
-            const newTasks = generatedTasks.filter(t => !existingTasksSet.has(t.toLowerCase()));
+            const existingTasksSet = new Set(prev.map((t: string) => t.toLowerCase()));
+            const newTasks = generatedTasks.filter((t: string) => !existingTasksSet.has(t.toLowerCase()));
             
             // Return existing tasks plus new ones
             return [...prev, ...newTasks];
