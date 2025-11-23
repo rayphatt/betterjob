@@ -118,7 +118,7 @@ export default function ResumeReviewPage() {
 
       if (response.ok) {
         const result = await response.json();
-        const newTasks = result.tasks || [];
+        const newTasks: string[] = result.tasks || [];
         
         if (preserveSelected && roleTasks[roleIndex]?.length > 0) {
           // Preserve selected tasks and add new tasks to the list
