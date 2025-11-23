@@ -123,8 +123,8 @@ export default function ResumeReviewPage() {
         if (preserveSelected && roleTasks[roleIndex]?.length > 0) {
           // Preserve selected tasks and add new tasks to the list
           const existingTasks = roleTasks[roleIndex] || [];
-          const existingTasksSet = new Set(existingTasks.map(t => t.toLowerCase()));
-          const filteredNewTasks = newTasks.filter(t => !existingTasksSet.has(t.toLowerCase()));
+          const existingTasksSet = new Set(existingTasks.map((t: string) => t.toLowerCase()));
+          const filteredNewTasks = newTasks.filter((t: string) => !existingTasksSet.has(t.toLowerCase()));
           
           // Add new tasks to existing ones
           const allTasks = [...existingTasks, ...filteredNewTasks];
