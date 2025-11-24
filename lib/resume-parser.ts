@@ -233,14 +233,26 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   } catch (error) {
     console.error("Error extracting text from PDF:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // Log full error details for debugging
+    console.error("PDF extraction error details:", {
+      message: errorMessage,
+      stack: errorStack,
+      error: error,
+      name: error instanceof Error ? error.name : undefined,
+    });
     
     // Provide helpful error message for common issues
     if (errorMessage.includes('worker') || 
         errorMessage.includes('pdf.worker') || 
         errorMessage.includes('Cannot find module') ||
         errorMessage.includes('ENOENT') ||
-        errorMessage.includes('no such file')) {
-      throw new Error(`PDF parsing error. Please ensure:\n\n1. The file is a valid PDF\n2. Try converting to Word (.docx) format\n3. Or skip and enter information manually`);
+        errorMessage.includes('no such file') ||
+        errorMessage.includes('pdfjs-dist') ||
+        errorMessage.includes('Dynamic require') ||
+        errorMessage.includes('require is not a function')) {
+      throw new Error(`PDF parsing error. Please ensure:\n\n1. The file is a valid PDF\n2. Try converting to Word (.docx) format\n3. Or skip and enter information manually\n\nTechnical details: ${errorMessage}`);
     }
     
     throw new Error(`Failed to extract text from PDF: ${errorMessage}`);
