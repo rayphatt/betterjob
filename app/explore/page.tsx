@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { ChevronDown, ChevronUp, ExternalLink, MapPin, Briefcase, ThumbsUp, ThumbsDown, X } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
+import { BackButton } from "@/components/back-button";
 
 interface SweetSpot {
   skill: string;
@@ -720,7 +721,10 @@ export default function ExplorePage() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4">
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-primary">BetterJob</div>
+            <div className="flex items-center gap-4">
+              <BackButton />
+              <div className="text-2xl font-bold text-primary">BetterJob</div>
+            </div>
             <Button
               onClick={fetchMoreCareerPaths}
               disabled={isLoadingMore || isLoading}
