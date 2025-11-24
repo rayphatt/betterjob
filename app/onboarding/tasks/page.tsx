@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import { useOnboarding } from "@/contexts/OnboardingContext";
+import { BackButton } from "@/components/back-button";
 
 export default function TasksPage() {
   const router = useRouter();
@@ -387,7 +388,11 @@ export default function TasksPage() {
 
   return (
     <main className="min-h-screen bg-background-page flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <Card className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <Card className="w-full">
         <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8">
           <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 leading-tight">
             Select all the tasks you performed as {getArticle(role)} {role || "[Role Title]"}
@@ -543,7 +548,8 @@ export default function TasksPage() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </main>
   );
 }

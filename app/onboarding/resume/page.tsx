@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, FileText, X } from "lucide-react";
 import Link from "next/link";
+import { BackButton } from "@/components/back-button";
 
 export default function ResumeUploadPage() {
   const router = useRouter();
@@ -183,7 +184,11 @@ export default function ResumeUploadPage() {
 
   return (
     <main className="min-h-screen bg-background-page flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <Card className="w-full max-w-2xl mx-auto">
+      <div className="w-full max-w-2xl mx-auto">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <Card className="w-full">
         <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8">
           <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 leading-tight">
             Let's start with your resume
@@ -330,7 +335,8 @@ export default function ResumeUploadPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </main>
   );
 }

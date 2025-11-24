@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, Check, X, Briefcase, Sparkles, Loader2 } from "lucide-react";
+import { BackButton } from "@/components/back-button";
 
 interface ParsedExperience {
   title: string;
@@ -248,6 +249,9 @@ export default function ResumeReviewPage() {
   return (
     <main className="min-h-screen bg-background-page py-8 sm:py-12 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
+        <div className="mb-4">
+          <BackButton />
+        </div>
         <Card className="shadow-lg border-0">
           <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8 pb-4">
             <div className="flex items-center justify-center mb-3">

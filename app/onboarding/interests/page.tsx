@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Sparkles } from "lucide-react";
 import { useOnboarding } from "@/contexts/OnboardingContext";
+import { BackButton } from "@/components/back-button";
 
 export default function InterestsPage() {
   const router = useRouter();
@@ -138,7 +139,11 @@ export default function InterestsPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background-page via-background-page to-primary/5 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <Card className="w-full max-w-xl mx-auto shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+      <div className="w-full max-w-xl mx-auto">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <Card className="w-full shadow-xl border-0 bg-white/95 backdrop-blur-sm">
         <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-6">
           <div className="flex items-center justify-center mb-3 sm:mb-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -215,7 +220,8 @@ export default function InterestsPage() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </main>
   );
 }

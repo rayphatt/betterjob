@@ -13,6 +13,7 @@ import { Home, Building2, Coffee, MapPin, DollarSign } from "lucide-react";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { signInAnonymouslyUser } from "@/lib/auth";
 import { createUserOnboarding } from "@/lib/firestore";
+import { BackButton } from "@/components/back-button";
 
 export default function PreferencesPage() {
   const router = useRouter();
@@ -376,7 +377,11 @@ export default function PreferencesPage() {
 
   return (
     <main className="min-h-screen bg-background-page flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <Card className="w-full max-w-2xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <Card className="w-full">
         <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8">
           <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 leading-tight">
             What's your ideal work environment?
@@ -605,7 +610,8 @@ export default function PreferencesPage() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </main>
   );
 }

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useOnboarding } from "@/contexts/OnboardingContext";
+import { BackButton } from "@/components/back-button";
 
 export default function RoleInputPage() {
   const router = useRouter();
@@ -39,7 +40,11 @@ export default function RoleInputPage() {
 
   return (
     <main className="min-h-screen bg-background-page flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <Card className="w-full max-w-2xl mx-auto">
+      <div className="w-full max-w-2xl mx-auto">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        <Card className="w-full">
         <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8">
           <CardTitle className="text-2xl sm:text-3xl mb-2 leading-tight">
             What role have you worked in?
@@ -95,7 +100,8 @@ export default function RoleInputPage() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </main>
   );
 }
