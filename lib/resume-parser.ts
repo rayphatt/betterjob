@@ -51,7 +51,14 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     
     // Use pdf-parse which works well in serverless environments
     // Use require for CommonJS compatibility in serverless
-    const pdfParse = require('pdf-parse');
+    const pdfParseModule = require('pdf-parse');
+    
+    // pdf-parse exports PDFParse as a property (not as default export)
+    const pdfParse = pdfParseModule.PDFParse || pdfParseModule;
+    
+    if (typeof pdfParse !== 'function') {
+      throw new Error('pdf-parse PDFParse function not found');
+    }
     
     // pdf-parse expects a Buffer, which we already have
     const data = await pdfParse(buffer);
