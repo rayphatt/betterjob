@@ -1,5 +1,54 @@
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
+    // Polyfill DOMMatrix and related browser APIs for serverless environments
+    // pdf-parse dependencies may require these browser APIs
+    if (typeof globalThis.DOMMatrix === 'undefined') {
+      // Minimal DOMMatrix polyfill for pdf-parse compatibility
+      (globalThis as any).DOMMatrix = class DOMMatrix {
+        a: number = 1;
+        b: number = 0;
+        c: number = 0;
+        d: number = 1;
+        e: number = 0;
+        f: number = 0;
+        m11: number = 1;
+        m12: number = 0;
+        m21: number = 0;
+        m22: number = 1;
+        m41: number = 0;
+        m42: number = 0;
+        
+        constructor(init?: string | number[]) {
+          if (Array.isArray(init) && init.length >= 6) {
+            this.a = init[0];
+            this.b = init[1];
+            this.c = init[2];
+            this.d = init[3];
+            this.e = init[4];
+            this.f = init[5];
+            this.m11 = init[0];
+            this.m12 = init[1];
+            this.m21 = init[2];
+            this.m22 = init[3];
+            this.m41 = init[4];
+            this.m42 = init[5];
+          }
+        }
+        
+        multiply(other: any) {
+          return new DOMMatrix();
+        }
+        
+        translate(x: number, y: number) {
+          return new DOMMatrix();
+        }
+        
+        scale(x: number, y?: number) {
+          return new DOMMatrix();
+        }
+      };
+    }
+    
     // Use pdf-parse which works well in serverless environments
     // Use require for CommonJS compatibility in serverless
     const pdfParse = require('pdf-parse');
