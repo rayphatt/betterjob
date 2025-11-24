@@ -1058,18 +1058,18 @@ export default function ExplorePage() {
           </div>
 
           {/* Right Side - Jobs for You Sidebar */}
-          <aside className="lg:w-96 lg:flex-shrink-0 lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:pl-8 relative">
+          <aside className="lg:w-96 lg:flex-shrink-0 lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:pl-8 relative flex flex-col">
             {/* Full-height border line */}
             <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200"></div>
             
             {/* Header */}
-            <div className="mb-6 relative z-10">
+            <div className="mb-6 relative z-10 flex-shrink-0">
               <h2 className="text-xl sm:text-2xl font-bold text-text-primary">Jobs for you</h2>
               <p className="text-sm text-text-secondary mt-1">Based on your career interests</p>
             </div>
 
-            {/* Jobs List */}
-            <div className="flex-1 overflow-y-auto pr-2 relative z-10">
+            {/* Jobs List - Scrollable */}
+            <div className="flex-1 overflow-y-auto pr-2 relative z-10 min-h-0">
               {isLoadingJobs ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
