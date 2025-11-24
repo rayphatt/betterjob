@@ -1,11 +1,11 @@
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
     // Use pdf-parse which works well in serverless environments
-    // Dynamic import to avoid bundling issues
-    const pdfParse = await import('pdf-parse');
+    // Use require for CommonJS compatibility in serverless
+    const pdfParse = require('pdf-parse');
     
     // pdf-parse expects a Buffer, which we already have
-    const data = await pdfParse.default(buffer);
+    const data = await pdfParse(buffer);
     
     // Extract text from all pages (pdf-parse extracts all pages automatically)
     let fullText = data.text || '';
