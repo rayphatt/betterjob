@@ -6,9 +6,10 @@ export async function extractTextFromPDFClient(file: File): Promise<string> {
     // Dynamic import to only load in browser
     const pdfjsLib = await import('pdfjs-dist');
     
-    // Set up worker for browser environment
+    // Set up worker for browser environment - use local copy from public folder
     if (typeof window !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      // Use worker from public folder (bundled with app, more reliable than CDN)
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
     }
     
     // Read file as array buffer
