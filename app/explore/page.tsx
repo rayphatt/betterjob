@@ -1086,11 +1086,6 @@ export default function ExplorePage() {
                         <h3 className="font-bold text-base text-text-primary line-clamp-2 flex-1 pr-2">
                           {job.title}
                         </h3>
-                        {job.matchScore && (
-                          <Badge className="flex-shrink-0 bg-primary/10 text-primary border-primary/20">
-                            {Math.round(job.matchScore)}% match
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex flex-col gap-1.5 mb-3">
                         <div className="flex items-center gap-2 text-sm text-text-secondary">
