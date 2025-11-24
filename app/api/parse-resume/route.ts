@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (!isValidType) {
       return NextResponse.json(
-        { error: "Invalid file type. Please upload a PDF or Word document (.pdf, .docx). Note: Legacy .doc files are not currently supported." },
+        { error: "Invalid file type. Please upload a Word document (.docx). PDF support coming soon." },
         { status: 400 }
       );
     }
@@ -34,7 +34,18 @@ export async function POST(request: NextRequest) {
     // Warn about .doc files
     if (fileName.endsWith(".doc") || file.type === "application/msword") {
       return NextResponse.json(
-        { error: "Legacy .doc files are not currently supported. Please convert your file to .docx or PDF format." },
+        { error: "Legacy .doc files are not currently supported. Please convert your file to .docx format." },
+        { status: 400 }
+      );
+    }
+    
+    // Inform about PDF limitation
+    if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
+      return NextResponse.json(
+        { 
+          error: "PDF parsing is currently not supported in our serverless environment.",
+          details: "Please convert your PDF to Word (.docx) format:\n1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n2. Save/Export as .docx format\n3. Upload the .docx file instead\n\nAlternatively, you can skip the resume upload and enter your information manually."
+        },
         { status: 400 }
       );
     }

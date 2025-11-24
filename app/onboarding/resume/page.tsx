@@ -141,7 +141,16 @@ export default function ResumeUploadPage() {
     } catch (error) {
       console.error("Error uploading resume:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      alert(`Failed to upload resume: ${errorMessage}\n\nPlease check:\n- File is a valid PDF or Word document\n- OpenAI API key is configured\n- File is not corrupted\n\nYou can skip this step to continue.`);
+      
+      // Provide more helpful error messages
+      let userMessage = errorMessage;
+      if (errorMessage.includes("PDF parsing is currently not supported")) {
+        userMessage = `PDF files are not currently supported.\n\nPlease convert your PDF to Word (.docx) format:\n1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n2. Save/Export as .docx format\n3. Upload the .docx file instead\n\nOr skip this step and enter your information manually.`;
+      } else if (errorMessage.includes("OpenAI")) {
+        userMessage = `OpenAI API error: ${errorMessage}\n\nPlease try again or skip this step to continue.`;
+      }
+      
+      alert(`Failed to upload resume: ${userMessage}`);
     } finally {
       setIsUploading(false);
       setIsParsing(false);
@@ -161,6 +170,10 @@ export default function ResumeUploadPage() {
           </CardTitle>
           <CardDescription className="text-sm sm:text-lg">
             Upload your resume to get personalized career matches. We'll extract your skills and experience automatically.
+            <br />
+            <span className="text-xs text-text-tertiary mt-1 block">
+              💡 Tip: Word documents (.docx) work best. PDF support coming soon.
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-6 sm:pb-8">
@@ -225,7 +238,9 @@ export default function ResumeUploadPage() {
                   </p>
                   <p className="text-sm sm:text-base text-text-secondary mt-2">or tap to browse</p>
                 </div>
-                <p className="text-xs sm:text-sm text-text-tertiary">PDF or Word documents (.pdf, .docx)</p>
+                <p className="text-xs sm:text-sm text-text-tertiary">
+                  Word documents (.docx) recommended • PDF support coming soon
+                </p>
               </div>
             </div>
           )}

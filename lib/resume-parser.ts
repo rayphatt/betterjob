@@ -1,116 +1,16 @@
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  try {
-    // Polyfill DOMMatrix and related browser APIs for serverless environments
-    // pdf-parse dependencies may require these browser APIs
-    if (typeof globalThis.DOMMatrix === 'undefined') {
-      // Minimal DOMMatrix polyfill for pdf-parse compatibility
-      (globalThis as any).DOMMatrix = class DOMMatrix {
-        a: number = 1;
-        b: number = 0;
-        c: number = 0;
-        d: number = 1;
-        e: number = 0;
-        f: number = 0;
-        m11: number = 1;
-        m12: number = 0;
-        m21: number = 0;
-        m22: number = 1;
-        m41: number = 0;
-        m42: number = 0;
-        
-        constructor(init?: string | number[]) {
-          if (Array.isArray(init) && init.length >= 6) {
-            this.a = init[0];
-            this.b = init[1];
-            this.c = init[2];
-            this.d = init[3];
-            this.e = init[4];
-            this.f = init[5];
-            this.m11 = init[0];
-            this.m12 = init[1];
-            this.m21 = init[2];
-            this.m22 = init[3];
-            this.m41 = init[4];
-            this.m42 = init[5];
-          }
-        }
-        
-        multiply(other: any) {
-          return new DOMMatrix();
-        }
-        
-        translate(x: number, y: number) {
-          return new DOMMatrix();
-        }
-        
-        scale(x: number, y?: number) {
-          return new DOMMatrix();
-        }
-      };
-    }
-    
-    // Use pdf-parse which works well in serverless environments
-    // Use require for CommonJS compatibility in serverless
-    const pdfParseModule = require('pdf-parse');
-    
-    // pdf-parse exports PDFParse as a class
-    const PDFParse = pdfParseModule.PDFParse;
-    
-    if (!PDFParse || typeof PDFParse !== 'function') {
-      throw new Error('pdf-parse PDFParse class not found');
-    }
-    
-    // Instantiate PDFParse with the buffer and get text
-    const parser = new PDFParse({ data: buffer });
-    const textResult = await parser.getText();
-    
-    // Extract text from the result (pdf-parse extracts all pages automatically)
-    const fullText = textResult.text || '';
-    
-    // Post-process to clean up common formatting issues
-    let cleanedText = fullText
-      // Remove excessive newlines (more than 2 consecutive)
-      .replace(/\n{3,}/g, '\n\n')
-      // Fix spacing around bullet points
-      .replace(/\n([•\-\*·‣◦▸▹▪▫])\s*/g, '\n$1 ')
-      // Fix numbered lists  
-      .replace(/\n(\d+[\.\)])\s+/g, '\n$1 ')
-      // Clean up multiple spaces (but keep single spaces)
-      .replace(/[ \t]{2,}/g, ' ')
-      // Remove spaces before newlines
-      .replace(/ +\n/g, '\n')
-      // Remove spaces after newlines
-      .replace(/\n +/g, '\n')
-      .trim();
-    
-    return cleanedText;
-  } catch (error) {
-    console.error("Error extracting text from PDF:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    
-    // Log full error details for debugging
-    console.error("PDF extraction error details:", {
-      message: errorMessage,
-      stack: errorStack,
-      error: error,
-      name: error instanceof Error ? error.name : undefined,
-    });
-    
-    // Provide helpful error message for common issues
-    if (errorMessage.includes('worker') || 
-        errorMessage.includes('pdf.worker') || 
-        errorMessage.includes('Cannot find module') ||
-        errorMessage.includes('ENOENT') ||
-        errorMessage.includes('no such file') ||
-        errorMessage.includes('pdfjs-dist') ||
-        errorMessage.includes('Dynamic require') ||
-        errorMessage.includes('require is not a function')) {
-      throw new Error(`PDF parsing error. Please ensure:\n\n1. The file is a valid PDF\n2. Try converting to Word (.docx) format\n3. Or skip and enter information manually\n\nTechnical details: ${errorMessage}`);
-    }
-    
-    throw new Error(`Failed to extract text from PDF: ${errorMessage}`);
-  }
+  // PDF parsing in serverless environments is problematic due to dependencies
+  // on browser APIs and worker files. For now, we'll provide a helpful error
+  // message directing users to convert to .docx format, which works perfectly.
+  
+  throw new Error(
+    `PDF parsing is currently not supported in our serverless environment.\n\n` +
+    `Please convert your PDF to Word (.docx) format:\n` +
+    `1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n` +
+    `2. Save/Export as .docx format\n` +
+    `3. Upload the .docx file instead\n\n` +
+    `Alternatively, you can skip the resume upload and enter your information manually.`
+  );
 }
 
 export async function extractTextFromWord(buffer: Buffer): Promise<string> {
