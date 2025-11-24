@@ -64,11 +64,8 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     const parser = new PDFParse({ data: buffer });
     const textResult = await parser.getText();
     
-    // Extract text from the result
+    // Extract text from the result (pdf-parse extracts all pages automatically)
     const fullText = textResult.text || '';
-    
-    // Extract text from all pages (pdf-parse extracts all pages automatically)
-    let fullText = data.text || '';
     
     // Post-process to clean up common formatting issues
     let cleanedText = fullText
