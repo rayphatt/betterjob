@@ -270,16 +270,27 @@ export default function ExplorePage() {
         const likedPaths = careerPaths.filter(path => careerPreferences[path.id || ""] === "like");
         const pathsToUse = likedPaths.length > 0 ? likedPaths : careerPaths.slice(0, 5); // Use top 5 if no likes
         
-        // Extract base role titles from career paths (remove industry context in parentheses)
-        const roles = pathsToUse.map(path => {
-          // Extract base role: "Product Manager (Music Technology)" -> "Product Manager"
-          return path.role.split("(")[0].trim();
+        // Construct search queries that combine role + industry/interest to match the dream board
+        // This ensures we search for jobs that combine the user's background with their interests
+        const searchQueries = pathsToUse.map(path => {
+          // Extract role and industry from career path
+          // Example: "Financial Analyst (Fitness Industry)" -> "Financial Analyst Fitness"
+          // This format is more likely to find actual jobs that combine finance with fitness
+          const roleMatch = path.role.match(/^(.+?)\s*\((.+?)\)$/);
+          if (roleMatch) {
+            const baseRole = roleMatch[1].trim();
+            const industry = roleMatch[2].trim().replace(/\s+(Industry|Technology|Startups?|Apps?)$/i, '').trim();
+            // Combine: "Financial Analyst Fitness" or "Product Manager Music"
+            return `${baseRole} ${industry}`;
+          }
+          // If no parentheses, use the role as-is
+          return path.role;
         });
 
-        console.log("[Explore] Fetching jobs for career paths:", roles);
+        console.log("[Explore] Fetching jobs for career paths:", searchQueries);
 
-        // Fetch jobs for each role and combine them
-        const allJobsPromises = roles.map(async (role) => {
+        // Fetch jobs for each career path and combine them
+        const allJobsPromises = searchQueries.map(async (searchQuery) => {
           try {
             const response = await fetch("/api/search-jobs", {
               method: "POST",
@@ -287,21 +298,21 @@ export default function ExplorePage() {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                role: role,
+                role: searchQuery, // Use full career path role including industry
                 location: location,
-                limit: 5, // Get 5 jobs per role
+                limit: 5, // Get 5 jobs per career path
               }),
             });
 
             if (!response.ok) {
-              console.warn(`[Explore] Failed to fetch jobs for ${role}`);
+              console.warn(`[Explore] Failed to fetch jobs for ${searchQuery}`);
               return [];
             }
 
             const result = await response.json();
             return result.jobs || [];
           } catch (error) {
-            console.error(`[Explore] Error fetching jobs for ${role}:`, error);
+            console.error(`[Explore] Error fetching jobs for ${searchQuery}:`, error);
             return [];
           }
         });
