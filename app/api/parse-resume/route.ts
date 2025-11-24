@@ -13,25 +13,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-      "application/msword", // .doc (note: parsing not fully supported)
-    ];
-    const allowedExtensions = [".pdf", ".docx"]; // .doc not fully supported
+    // Validate file type - only accept .docx files
     const fileName = file.name.toLowerCase();
-    const isValidType = allowedTypes.includes(file.type) || 
-                        allowedExtensions.some(ext => fileName.endsWith(ext));
-
-    if (!isValidType) {
+    
+    // Reject PDFs immediately
+    if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
       return NextResponse.json(
-        { error: "Invalid file type. Please upload a Word document (.docx). PDF support coming soon." },
+        { 
+          error: "PDF files are not currently supported.",
+          details: "Please convert your PDF to Word (.docx) format:\n1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n2. Save/Export as .docx format\n3. Upload the .docx file instead\n\nAlternatively, you can skip the resume upload and enter your information manually."
+        },
         { status: 400 }
       );
     }
     
-    // Warn about .doc files
+    // Reject .doc files
     if (fileName.endsWith(".doc") || file.type === "application/msword") {
       return NextResponse.json(
         { error: "Legacy .doc files are not currently supported. Please convert your file to .docx format." },
@@ -39,13 +35,13 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Inform about PDF limitation
-    if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
+    // Only accept .docx files
+    const isDocx = fileName.endsWith(".docx") || 
+                   file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    
+    if (!isDocx) {
       return NextResponse.json(
-        { 
-          error: "PDF parsing is currently not supported in our serverless environment.",
-          details: "Please convert your PDF to Word (.docx) format:\n1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n2. Save/Export as .docx format\n3. Upload the .docx file instead\n\nAlternatively, you can skip the resume upload and enter your information manually."
-        },
+        { error: "Invalid file type. Please upload a Word document (.docx). PDF support coming soon." },
         { status: 400 }
       );
     }

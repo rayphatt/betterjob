@@ -42,25 +42,42 @@ export default function ResumeUploadPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      const allowedTypes = [
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-        "application/msword", // .doc
-      ];
-      const allowedExtensions = [".pdf", ".doc", ".docx"];
       const fileName = selectedFile.name.toLowerCase();
-      const isValidType = allowedTypes.includes(selectedFile.type) || 
-                          allowedExtensions.some(ext => fileName.endsWith(ext));
       
-      if (isValidType) {
-        // Check for .doc files specifically
-        if (fileName.endsWith(".doc") || selectedFile.type === "application/msword") {
-          alert("Legacy .doc files are not currently supported. Please convert your file to .docx or PDF format.");
-          return;
+      // Reject PDFs immediately with helpful message
+      if (fileName.endsWith(".pdf") || selectedFile.type === "application/pdf") {
+        alert(
+          "PDF files are not currently supported.\n\n" +
+          "Please convert your PDF to Word (.docx) format:\n" +
+          "1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n" +
+          "2. Save/Export as .docx format\n" +
+          "3. Upload the .docx file instead\n\n" +
+          "Or skip this step and enter your information manually."
+        );
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
         }
+        return;
+      }
+      
+      // Reject .doc files
+      if (fileName.endsWith(".doc") || selectedFile.type === "application/msword") {
+        alert("Legacy .doc files are not currently supported. Please convert your file to .docx format.");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+      
+      // Only accept .docx files
+      if (fileName.endsWith(".docx") || selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
         setFile(selectedFile);
       } else {
-        alert("Please upload a PDF or Word document (.pdf, .docx)");
+        alert("Please upload a Word document (.docx). PDF support coming soon.");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
     }
   };
@@ -69,24 +86,32 @@ export default function ResumeUploadPage() {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
-      const allowedTypes = [
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-      ];
-      const allowedExtensions = [".pdf", ".docx"]; // .doc not fully supported
       const fileName = droppedFile.name.toLowerCase();
-      const isValidType = allowedTypes.includes(droppedFile.type) || 
-                          allowedExtensions.some(ext => fileName.endsWith(ext));
       
-      if (isValidType) {
-        // Check for .doc files specifically
-        if (fileName.endsWith(".doc") || droppedFile.type === "application/msword") {
-          alert("Legacy .doc files are not currently supported. Please convert your file to .docx or PDF format.");
-          return;
-        }
+      // Reject PDFs immediately
+      if (fileName.endsWith(".pdf") || droppedFile.type === "application/pdf") {
+        alert(
+          "PDF files are not currently supported.\n\n" +
+          "Please convert your PDF to Word (.docx) format:\n" +
+          "1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n" +
+          "2. Save/Export as .docx format\n" +
+          "3. Upload the .docx file instead\n\n" +
+          "Or skip this step and enter your information manually."
+        );
+        return;
+      }
+      
+      // Reject .doc files
+      if (fileName.endsWith(".doc") || droppedFile.type === "application/msword") {
+        alert("Legacy .doc files are not currently supported. Please convert your file to .docx format.");
+        return;
+      }
+      
+      // Only accept .docx files
+      if (fileName.endsWith(".docx") || droppedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
         setFile(droppedFile);
       } else {
-        alert("Please upload a PDF or Word document (.pdf, .docx)");
+        alert("Please upload a Word document (.docx). PDF support coming soon.");
       }
     }
   };
@@ -226,7 +251,7 @@ export default function ResumeUploadPage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={handleFileSelect}
                 className="hidden"
               />
