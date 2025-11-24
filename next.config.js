@@ -19,7 +19,13 @@ const nextConfig = {
       };
     }
     
-    // pdfjs-dist removed - now using pdf-parse for serverless compatibility
+    // Exclude pdfjs-dist from server builds (we only use it client-side for PDF parsing)
+    if (isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'pdfjs-dist': false,
+      };
+    }
     
     return config;
   },

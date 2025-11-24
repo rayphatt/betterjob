@@ -5,6 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    const extractedText = formData.get("extractedText") as string | null;
 
     if (!file) {
       return NextResponse.json(
@@ -13,19 +14,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type - only accept .docx files
+    // Validate file type
     const fileName = file.name.toLowerCase();
-    
-    // Reject PDFs immediately
-    if (fileName.endsWith(".pdf") || file.type === "application/pdf") {
-      return NextResponse.json(
-        { 
-          error: "PDF files are not currently supported.",
-          details: "Please convert your PDF to Word (.docx) format:\n1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n2. Save/Export as .docx format\n3. Upload the .docx file instead\n\nAlternatively, you can skip the resume upload and enter your information manually."
-        },
-        { status: 400 }
-      );
-    }
+    const isPDF = fileName.endsWith(".pdf") || file.type === "application/pdf";
+    const isDocx = fileName.endsWith(".docx") || 
+                   file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     
     // Reject .doc files
     if (fileName.endsWith(".doc") || file.type === "application/msword") {
@@ -35,38 +28,50 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Only accept .docx files
-    const isDocx = fileName.endsWith(".docx") || 
-                   file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    
-    if (!isDocx) {
+    // Validate file type
+    if (!isPDF && !isDocx) {
       return NextResponse.json(
-        { error: "Invalid file type. Please upload a Word document (.docx). PDF support coming soon." },
+        { error: "Invalid file type. Please upload a PDF or Word document (.pdf, .docx)." },
         { status: 400 }
       );
     }
-
-    // Convert file to buffer and extract text
-    const arrayBuffer = await file.arrayBuffer();
-    // Ensure we have a proper Buffer for Node.js
-    const buffer = Buffer.from(arrayBuffer);
     
-    // Log for debugging
-    console.log(`Processing ${file.type} file: ${file.name}, size: ${buffer.length} bytes`);
-    
-    let resumeText: string;
-    try {
-      resumeText = await extractTextFromFile(buffer, file.type, file.name);
-    } catch (extractError) {
-      console.error("Error extracting text from file:", extractError);
-      const errorMessage = extractError instanceof Error ? extractError.message : "Unknown extraction error";
+    // For PDFs, require extracted text from client-side parsing
+    if (isPDF && !extractedText) {
       return NextResponse.json(
         { 
-          error: "Failed to extract text from resume file",
-          details: errorMessage,
+          error: "PDF text extraction failed. Please try again or convert to .docx format.",
         },
-        { status: 500 }
+        { status: 400 }
       );
+    }
+    
+    let resumeText: string;
+    
+    // Use extracted text if provided (from client-side PDF parsing), otherwise extract from file
+    if (extractedText) {
+      resumeText = extractedText;
+      console.log(`Using client-extracted text from PDF: ${resumeText.length} characters`);
+    } else {
+      // Extract text from .docx file
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      console.log(`Processing ${file.type} file: ${file.name}, size: ${buffer.length} bytes`);
+      
+      try {
+        resumeText = await extractTextFromFile(buffer, file.type, file.name);
+      } catch (extractError) {
+        console.error("Error extracting text from file:", extractError);
+        const errorMessage = extractError instanceof Error ? extractError.message : "Unknown extraction error";
+        return NextResponse.json(
+          { 
+            error: "Failed to extract text from resume file",
+            details: errorMessage,
+          },
+          { status: 500 }
+        );
+      }
     }
     
     // Log extracted text length for debugging (more detailed in development)

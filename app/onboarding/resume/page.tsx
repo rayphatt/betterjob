@@ -44,37 +44,21 @@ export default function ResumeUploadPage() {
     if (selectedFile) {
       const fileName = selectedFile.name.toLowerCase();
       
-      // Reject PDFs immediately with helpful message
-      if (fileName.endsWith(".pdf") || selectedFile.type === "application/pdf") {
-        alert(
-          "PDF files are not currently supported.\n\n" +
-          "Please convert your PDF to Word (.docx) format:\n" +
-          "1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n" +
-          "2. Save/Export as .docx format\n" +
-          "3. Upload the .docx file instead\n\n" +
-          "Or skip this step and enter your information manually."
-        );
-        // Clear the file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        return;
-      }
-      
-      // Reject .doc files
-      if (fileName.endsWith(".doc") || selectedFile.type === "application/msword") {
+      // Accept PDF, .docx files
+      if (
+        fileName.endsWith(".pdf") || 
+        selectedFile.type === "application/pdf" ||
+        fileName.endsWith(".docx") || 
+        selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        setFile(selectedFile);
+      } else if (fileName.endsWith(".doc") || selectedFile.type === "application/msword") {
         alert("Legacy .doc files are not currently supported. Please convert your file to .docx format.");
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
-        return;
-      }
-      
-      // Only accept .docx files
-      if (fileName.endsWith(".docx") || selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        setFile(selectedFile);
       } else {
-        alert("Please upload a Word document (.docx). PDF support coming soon.");
+        alert("Please upload a PDF or Word document (.pdf, .docx)");
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -88,30 +72,18 @@ export default function ResumeUploadPage() {
     if (droppedFile) {
       const fileName = droppedFile.name.toLowerCase();
       
-      // Reject PDFs immediately
-      if (fileName.endsWith(".pdf") || droppedFile.type === "application/pdf") {
-        alert(
-          "PDF files are not currently supported.\n\n" +
-          "Please convert your PDF to Word (.docx) format:\n" +
-          "1. Open your PDF in Microsoft Word, Google Docs, or Adobe Acrobat\n" +
-          "2. Save/Export as .docx format\n" +
-          "3. Upload the .docx file instead\n\n" +
-          "Or skip this step and enter your information manually."
-        );
-        return;
-      }
-      
-      // Reject .doc files
-      if (fileName.endsWith(".doc") || droppedFile.type === "application/msword") {
-        alert("Legacy .doc files are not currently supported. Please convert your file to .docx format.");
-        return;
-      }
-      
-      // Only accept .docx files
-      if (fileName.endsWith(".docx") || droppedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      // Accept PDF, .docx files
+      if (
+        fileName.endsWith(".pdf") || 
+        droppedFile.type === "application/pdf" ||
+        fileName.endsWith(".docx") || 
+        droppedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
         setFile(droppedFile);
+      } else if (fileName.endsWith(".doc") || droppedFile.type === "application/msword") {
+        alert("Legacy .doc files are not currently supported. Please convert your file to .docx format.");
       } else {
-        alert("Please upload a Word document (.docx). PDF support coming soon.");
+        alert("Please upload a PDF or Word document (.pdf, .docx)");
       }
     }
   };
@@ -127,9 +99,32 @@ export default function ResumeUploadPage() {
     setIsParsing(true);
 
     try {
+      const fileName = file.name.toLowerCase();
+      const isPDF = fileName.endsWith(".pdf") || file.type === "application/pdf";
+      
+      let resumeText: string | null = null;
+      
+      // If PDF, parse it client-side first
+      if (isPDF) {
+        try {
+          const { extractTextFromPDFClient } = await import("@/lib/client-pdf-parser");
+          resumeText = await extractTextFromPDFClient(file);
+          console.log("Extracted text from PDF client-side:", resumeText.length, "characters");
+        } catch (pdfError) {
+          console.error("Error parsing PDF client-side:", pdfError);
+          const errorMessage = pdfError instanceof Error ? pdfError.message : "Unknown error";
+          throw new Error(`Failed to parse PDF: ${errorMessage}\n\nPlease try converting to .docx format or skip this step.`);
+        }
+      }
+      
       // Upload and parse resume
       const formData = new FormData();
       formData.append("file", file);
+      
+      // If we extracted text client-side (PDF), send it along
+      if (resumeText) {
+        formData.append("extractedText", resumeText);
+      }
 
       const response = await fetch("/api/parse-resume", {
         method: "POST",
@@ -195,10 +190,6 @@ export default function ResumeUploadPage() {
           </CardTitle>
           <CardDescription className="text-sm sm:text-lg">
             Upload your resume to get personalized career matches. We'll extract your skills and experience automatically.
-            <br />
-            <span className="text-xs text-text-tertiary mt-1 block">
-              💡 Tip: Word documents (.docx) work best. PDF support coming soon.
-            </span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-6 sm:pb-8">
@@ -251,7 +242,7 @@ export default function ResumeUploadPage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={handleFileSelect}
                 className="hidden"
               />
@@ -264,7 +255,7 @@ export default function ResumeUploadPage() {
                   <p className="text-sm sm:text-base text-text-secondary mt-2">or tap to browse</p>
                 </div>
                 <p className="text-xs sm:text-sm text-text-tertiary">
-                  Word documents (.docx) recommended • PDF support coming soon
+                  PDF or Word documents (.pdf, .docx)
                 </p>
               </div>
             </div>
