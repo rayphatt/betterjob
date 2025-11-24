@@ -47,7 +47,20 @@ export async function POST(request: NextRequest) {
     // Log for debugging
     console.log(`Processing ${file.type} file: ${file.name}, size: ${buffer.length} bytes`);
     
-    const resumeText = await extractTextFromFile(buffer, file.type, file.name);
+    let resumeText: string;
+    try {
+      resumeText = await extractTextFromFile(buffer, file.type, file.name);
+    } catch (extractError) {
+      console.error("Error extracting text from file:", extractError);
+      const errorMessage = extractError instanceof Error ? extractError.message : "Unknown extraction error";
+      return NextResponse.json(
+        { 
+          error: "Failed to extract text from resume file",
+          details: errorMessage,
+        },
+        { status: 500 }
+      );
+    }
     
     // Log extracted text length for debugging (more detailed in development)
     if (process.env.NODE_ENV === "development") {
@@ -130,20 +143,47 @@ DO NOT include any text outside the JSON object.
     }
 
     const { getOpenAI } = await import("@/lib/openai");
-    const openai = getOpenAI();
-    
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Use gpt-4o-mini which is cost-effective and reliable
-      messages: [
+    let openai;
+    try {
+      openai = getOpenAI();
+    } catch (openaiError) {
+      console.error("Error initializing OpenAI:", openaiError);
+      return NextResponse.json(
         { 
-          role: "system", 
-          content: "You are a resume parser. Always return valid JSON only, no other text. Do not include markdown code blocks or any text outside the JSON object. CRITICAL: Extract ALL content from the resume - include EVERY bullet point, EVERY responsibility, and EVERY achievement. Do NOT summarize, truncate, or shorten any text. Preserve the COMPLETE, FULL text of all bullet points and descriptions. If there are 5 bullet points, include all 5. If there are 10 bullet points, include all 10. Include EVERYTHING." 
+          error: "Failed to initialize OpenAI client",
+          details: openaiError instanceof Error ? openaiError.message : "Unknown error",
         },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0,
-      max_tokens: 4000, // Increase max tokens to ensure we capture all content
-    });
+        { status: 500 }
+      );
+    }
+    
+    let response;
+    try {
+      response = await openai.chat.completions.create({
+        model: "gpt-4o-mini", // Use gpt-4o-mini which is cost-effective and reliable
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a resume parser. Always return valid JSON only, no other text. Do not include markdown code blocks or any text outside the JSON object. CRITICAL: Extract ALL content from the resume - include EVERY bullet point, EVERY responsibility, and EVERY achievement. Do NOT summarize, truncate, or shorten any text. Preserve the COMPLETE, FULL text of all bullet points and descriptions. If there are 5 bullet points, include all 5. If there are 10 bullet points, include all 10. Include EVERYTHING." 
+          },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0,
+        max_tokens: 4000, // Increase max tokens to ensure we capture all content
+      });
+    } catch (openaiApiError: any) {
+      console.error("OpenAI API error:", openaiApiError);
+      const errorMessage = openaiApiError?.message || "Unknown OpenAI API error";
+      const statusCode = openaiApiError?.status || 500;
+      
+      return NextResponse.json(
+        { 
+          error: "OpenAI API request failed",
+          details: errorMessage,
+        },
+        { status: statusCode >= 400 && statusCode < 600 ? statusCode : 500 }
+      );
+    }
 
     // Parse the response - handle both JSON objects and markdown-wrapped JSON
     const content = response.choices[0].message.content || "{}";
@@ -221,20 +261,30 @@ DO NOT include any text outside the JSON object.
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;
     
-    // Log full error details in development
-    if (process.env.NODE_ENV === "development") {
-      console.error("Full error details:", {
-        message: errorMessage,
-        stack: errorStack,
-        error: error,
-      });
+    // Log full error details for debugging
+    console.error("Full error details:", {
+      message: errorMessage,
+      stack: errorStack,
+      error: error,
+      name: error instanceof Error ? error.name : undefined,
+    });
+    
+    // Provide more specific error messages based on error type
+    let userFriendlyMessage = "Failed to parse resume";
+    if (errorMessage.includes("API key") || errorMessage.includes("OPENAI")) {
+      userFriendlyMessage = "OpenAI API key is not configured";
+    } else if (errorMessage.includes("rate limit") || errorMessage.includes("quota")) {
+      userFriendlyMessage = "OpenAI API rate limit exceeded. Please try again later.";
+    } else if (errorMessage.includes("pdf") || errorMessage.includes("PDF")) {
+      userFriendlyMessage = "Error processing PDF file. Please ensure it's a valid PDF.";
+    } else if (errorMessage.includes("docx") || errorMessage.includes("Word")) {
+      userFriendlyMessage = "Error processing Word document. Please ensure it's a valid .docx file.";
     }
     
     return NextResponse.json(
       { 
-        error: "Failed to parse resume",
-        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
-        stack: process.env.NODE_ENV === "development" ? errorStack : undefined,
+        error: userFriendlyMessage,
+        details: errorMessage,
       },
       { status: 500 }
     );
