@@ -138,22 +138,22 @@ export default function InterestsPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background-page via-background-page to-primary/5 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <Card className="w-full max-w-2xl sm:max-w-4xl lg:max-w-5xl mx-auto shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="text-center px-4 sm:px-8 lg:px-12 pt-12 sm:pt-16 lg:pt-20 pb-6 sm:pb-8">
-          <div className="flex items-center justify-center mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+      <Card className="w-full max-w-xl mx-auto shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="text-center px-4 sm:px-6 pt-6 sm:pt-8 pb-4 sm:pb-6">
+          <div className="flex items-center justify-center mb-3 sm:mb-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6 leading-tight font-bold text-text-primary">
+          <CardTitle className="text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4 leading-tight font-bold text-text-primary">
             What gets you out of bed?
           </CardTitle>
-          <CardDescription className="text-base sm:text-lg md:text-xl lg:text-2xl mt-2 sm:mt-4 text-text-secondary max-w-2xl mx-auto leading-relaxed">
+          <CardDescription className="text-sm sm:text-base md:text-lg mt-2 text-text-secondary max-w-xl mx-auto">
             Describe a career, industry, or field that interests you.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-8 sm:space-y-10 lg:space-y-12 px-4 sm:px-8 lg:px-12 pb-12 sm:pb-16 lg:pb-20">
-          <div className="space-y-4 sm:space-y-5">
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-6 sm:pb-8">
+          <div className="space-y-3 sm:space-y-4">
             <Input
               id="interest-input"
               type="text"
@@ -178,21 +178,21 @@ export default function InterestsPage() {
                 }
               }}
               maxLength={maxLength}
-              className={`text-lg sm:text-xl md:text-2xl h-16 sm:h-20 md:h-24 lg:h-28 w-full px-6 sm:px-8 border-2 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg ${
+              className={`text-base sm:text-lg h-12 sm:h-14 w-full px-4 sm:px-6 border-2 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg ${
                 error ? "border-destructive focus:border-destructive focus:ring-destructive/20" : ""
               }`}
             />
             {error && (
-              <p className="text-sm sm:text-base text-destructive mt-2">
+              <p className="text-sm text-destructive mt-1">
                 {error}
               </p>
             )}
-            <div className="flex justify-between items-center pt-2">
-              <p className="text-sm sm:text-base md:text-lg text-text-tertiary flex items-center gap-2">
+            <div className="flex justify-between items-center pt-1">
+              <p className="text-xs sm:text-sm text-text-tertiary flex items-center gap-2">
                 <span className="text-primary">✨</span>
                 <span>Share what you're passionate about</span>
               </p>
-              <p className={`text-sm sm:text-base md:text-lg font-medium transition-colors ${
+              <p className={`text-xs sm:text-sm font-medium transition-colors ${
                 characterCount > maxLength * 0.9 
                   ? "text-warning" 
                   : characterCount > 0
@@ -204,11 +204,11 @@ export default function InterestsPage() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-8 sm:pt-10">
+          <div className="flex justify-end pt-4 sm:pt-6">
             <Button
               onClick={handleNext}
               disabled={!isValid || isSaving}
-              className="w-full sm:w-auto px-10 sm:px-14 lg:px-20 py-5 sm:py-7 lg:py-9 text-lg sm:text-xl md:text-2xl min-h-[60px] sm:min-h-[72px] touch-manipulation shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg min-h-[44px] touch-manipulation shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
               size="lg"
             >
               {isSaving ? "Saving..." : "Continue →"}
