@@ -19,14 +19,7 @@ const nextConfig = {
       };
     }
     
-    // Mark pdfjs-dist as external for both client and server to prevent bundling issues
-    config.externals = config.externals || [];
-    if (Array.isArray(config.externals)) {
-      config.externals.push({
-        'pdfjs-dist': 'commonjs pdfjs-dist',
-        'pdfjs-dist/legacy/build/pdf.js': 'commonjs pdfjs-dist/legacy/build/pdf.js',
-      });
-    }
+    // pdfjs-dist removed - now using pdf-parse for serverless compatibility
     
     return config;
   },
