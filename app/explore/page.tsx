@@ -720,27 +720,31 @@ export default function ExplorePage() {
       {/* Top Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between relative">
+            <div className="flex-shrink-0">
               <BackButton />
-              <div className="text-2xl font-bold text-primary">BetterJob</div>
             </div>
-            <Button
-              onClick={fetchMoreCareerPaths}
-              disabled={isLoadingMore || isLoading}
-              variant="outline"
-              size="sm"
-              className="flex-shrink-0"
-            >
-              {isLoadingMore ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-                  Loading...
-                </>
-              ) : (
-                "Find More"
-              )}
-            </Button>
+            <div className="absolute left-1/2 -translate-x-1/2 text-2xl font-bold text-primary">
+              BetterJob
+            </div>
+            <div className="flex-shrink-0">
+              <Button
+                onClick={fetchMoreCareerPaths}
+                disabled={isLoadingMore || isLoading}
+                variant="outline"
+                size="sm"
+                className="flex-shrink-0"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  "Find More"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
